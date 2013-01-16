@@ -30,6 +30,7 @@ if ($ds) {
         $address2 = $vars['address2'];
         $postalcode = $vars['postcode'];
         $state = $vars['state'];
+        $city = $vars['city'];
         $password = $vars['password'];
         $phonenumber = $vars['phonenumber'];
 
@@ -75,7 +76,7 @@ if ($ds) {
                 $info['gidnumber'][0] = "10000";
                 $info['homedirectory'][0] = "/home/" . $username;
                 $info['homephone'][0] = $phonenumber;
-                $info['l'][0] = "n/a";
+                $info['l'][0] = $city;
                 $info['loginshell'][0] = "/bin/bash";
                 $info['mobile'][0] = $phonenumber;
                 $info['postalcode'][0] = $postalcode;
