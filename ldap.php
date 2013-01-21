@@ -103,7 +103,12 @@ if ($ds) {
                 $group_name = "cn=members,ou=groups,dc=yourdomain,dc=com";
 		$group_info['memberUid'] = $username;
 		$s = ldap_mod_add($ds,$group_name,$group_info);
-
+		
+		if (!$s)
+                {
+                		// logs error if ldap_mod_add fails
+                                logActivity(ldap_error($ds));
+                }
 
         }
         ldap_close($ds);
