@@ -95,9 +95,15 @@ if ($ds) {
                 $r = ldap_add($ds, $dn, $info);
                 if (!$r)
                 {
-								// logs errors to WHMCS activity log
+				// logs errors to WHMCS activity log
                                 logActivity(ldap_error($ds));
                 }
+                
+                // add user to members cn (or whatever CN you use for users)
+                $group_name = "cn=members,ou=groups,dc=yourdomain,dc=com";
+		$group_info['memberUid'] = $username;
+		$s = ldap_mod_add($ds,$group_name,$group_info);
+
 
         }
         ldap_close($ds);
