@@ -5,24 +5,14 @@ function create_ldap_account($vars) {
 $ds = ldap_connect("localhost");  // assuming the LDAP server is on this host
 
 if ($ds) {
-		// otherwise PHP defaults to ldap v2 and you will get a Syntax Error!
-		ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
+	// otherwise PHP defaults to ldap v2 and you will get a Syntax Error!
+	ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
 		
         // bind with appropriate dn to give update access
         $r = ldap_bind($ds, "cn=admin,dc=yourdomain,dc=com", "secret");
 
         // variables from WHMCS
         $userid = $vars['userid'];
-
-        // query database for username
-        $table = "tblcustomfieldsvalues";
-        $fields = "fieldid,relid,value";
-        $where = array("fieldid"=>"2", "relid"=>$userid);
-        $result = select_query($table,$fields,$where);
-        $data = mysql_fetch_array($result);
-        $username = $data['value'];
-        logActivity($username);
-
         $firstname = $vars['firstname'];
         $lastname = $vars['lastname'];
         $email = $vars['email'];
@@ -33,12 +23,20 @@ if ($ds) {
         $city = $vars['city'];
         $password = $vars['password'];
         $phonenumber = $vars['phonenumber'];
-
+        
+        // query database for LDAP username
+        $table = "tblcustomfieldsvalues";
+        $fields = "fieldid,relid,value";
+        $where = array("fieldid"=>"2", "relid"=>$userid);
+        $result = select_query($table,$fields,$where);
+        $data = mysql_fetch_array($result);
+        $username = $data['value'];
+        logActivity($username);
 
         // shadowlastchange requires days since last epoch
         $unixTimeDays = floor(time()/86400);
 
-        // function will find the largest UID, then add 1 to generate a UID for the user
+        // function will find the largest UID, then add 1 to generate a unique UID for the user
         // http://bakery.cakephp.org/articles/UncleBill/2006/10/15/using-ldap-as-a-database
         function findLargestUidNumber($ds)
         {
@@ -55,11 +53,14 @@ if ($ds) {
           }
           return null;
         }
+        
         $largestUID = findLargestUidNumber($ds);
+        
         if ($largestUID == null)
         {
                 logActivity("Unable to find largest UID");
         }
+        
         else {
                 $generatedUID = $largestUID + 1;
 
@@ -88,10 +89,10 @@ if ($ds) {
                 $info['uidnumber'][0] = $generatedUID;
                 $info['userpassword'][0] = "{SHA}" . base64_encode(sha1($password, TRUE));
 
+                
 
+                // add data to LDAP
                 $dn = "uid=" . $username . ",ou=people,dc=yourdomain,dc=com";
-
-                // add data to directory
                 $r = ldap_add($ds, $dn, $info);
                 if (!$r)
                 {
@@ -103,7 +104,6 @@ if ($ds) {
                 $group_name = "cn=members,ou=groups,dc=yourdomain,dc=com";
 		$group_info['memberUid'] = $username;
 		$s = ldap_mod_add($ds,$group_name,$group_info);
-		
 		if (!$s)
                 {
                 		// logs error if ldap_mod_add fails
@@ -113,7 +113,7 @@ if ($ds) {
         }
         ldap_close($ds);
 } else {
-        logActivity("Unable to connect to LDAP server");
+	logActivity("Unable to connect to LDAP server");
 }
 
 }
