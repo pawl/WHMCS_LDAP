@@ -1,6 +1,10 @@
+changepassword.php: Search for a WHMCS user's account in LDAP (with a matching email address) and change that password when the password is changed in WHMCS.
+
+ldap.php: Creates users in LDAP when they are created in WHMCS.
+
 You will need to modify this script to match your own schema. I used phpLDAPadmin, exported an user, then copied the fields into the script exactly. Also, you will need to change the DN settings to match your own login information.
 
-You will also need to create a custom field for the user's LDAP username. Part of the code does a mysql query to find the user's LDAP username which corresponds to the userID which WHMCS returns.
+For ldap.php, you will also need to create a custom field for the user's LDAP username. Part of the code does a mysql query to find the user's LDAP username which corresponds to the userID which WHMCS returns.
 
 Add this script to your whmcs/includes/hooks directory.
 
