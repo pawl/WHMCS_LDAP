@@ -1,4 +1,4 @@
-changepassword.php: Search for a WHMCS user's account in LDAP (with a matching email address) and change that password when the password is changed in WHMCS.
+changepassword.php: Searches for a WHMCS user's account in LDAP (with a matching email address) and change that password when the password is changed in WHMCS.
 
 ldap.php: Creates users in LDAP when they are created in WHMCS.
 
