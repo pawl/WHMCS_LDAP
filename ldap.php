@@ -82,7 +82,11 @@ function create_ldap_account($vars) {
 			$info['title'][0] = "Member";
 			$info['uid'][0] = $username;
 			$info['uidnumber'][0] = $generatedUID;
-			$info['userpassword'][0] = "{SHA}" . base64_encode(sha1($password, TRUE));
+
+			// Generate SSHA hash
+			mt_srand((double)microtime()*1000000);
+			$salt = pack("CCCC", mt_rand(), mt_rand(), mt_rand(), mt_rand());
+			$info['userpassword'][0] = "{SSHA}" . base64_encode(pack("H*", sha1($password . $salt)) . $salt);
 
 			$dn = "uid=" . $username . ",ou=people,dc=yourdomain,dc=com";
 
