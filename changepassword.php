@@ -48,7 +48,10 @@ if ($ds) {
 		logActivity("LDAP Search Failure");
 	}
 
-	$group_info['userpassword'][0] = "{SHA}" . base64_encode(sha1($password, TRUE));
+	// Generate SSHA hash
+	mt_srand((double)microtime()*1000000);
+	$salt = pack("CCCC", mt_rand(), mt_rand(), mt_rand(), mt_rand());
+	$group_info['userpassword'][0] = "{SSHA}" . base64_encode(pack("H*", sha1($password . $salt)) . $salt);
 	$group_name = "uid=" . $username . ",ou=people,dc=yourdomain,dc=com";
 
 	logActivity($username);
